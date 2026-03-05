@@ -1,0 +1,4 @@
+{:paths ["src"]
+ :deps {io.github.TimoKramer/charm.clj {:git/sha "cf7a6c2fcfcccc44fcf04996e264183aa49a70d6"}
+        metosin/malli                  {:mvn/version "0.20.0"}
+        babashka/babashka              {:mvn/version "1.12.216"}}}
