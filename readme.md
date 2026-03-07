@@ -26,13 +26,34 @@ Add to your `bb.edn` or `deps.edn`:
 (ns examples.simple-form
   (:require [roterski.doorbell :as doorbell]))
 
-(println (doorbell/cli->data [:map
-                              [:name {:default "foo"} :string]]))
+(println (str (doorbell/cli->data [:map
+                                   [:name {:default "foo"} [:string {:min 3}]]])))
 ```
-run it with
+run it with:
 ````
 bb examples/simple_form.clj
 ````
+when any args are missing (or invalid) it will start the interactive TUI:
+![simple-form](doc/simple-form.gif)
+
+when you provide all args:
+````
+bb examples/simple_form.clj name bob
+````
+
+or for single key schemas, when you provide single arg:
+````
+bb examples/simple_form.clj bob
+````
+
+it will just coerce the data without starting the interactive TUI:
+
+![non-interactive](doc/non-interactive.png)
+
+but, again, if you provide invalid data, it'll start the TUI:
+
+![invalid](doc/invalid.png)
+
 
 ### Form with nested fields
 
@@ -64,7 +85,7 @@ bb examples/person_form.clj -first-name Bob --age 30 looks.eye-color blue "looks
 - nested keys use dot notation on the command line (e.g. `looks.eye-color`)
 
 ## Limitations
-- args must be key/value pair
+- args must be key/value pair (unless it's a single arg for a single arg schema)
 - attributes ending with `?` need to be wrapped in `" "` quotes
 - no support for vectors/sequences values in schemas
 
