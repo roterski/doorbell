@@ -13,7 +13,7 @@ Add to your `bb.edn` or `deps.edn`:
 
 ```clojure
 {:deps {io.github.roterski/doorbell {:git/url "https://github.com/roterski/doorbell"
-                                     :git/sha "2bd5ea9501a7f113cef35e3c840dc0e43811b9bf"}}}
+                                     :git/sha "7f375ea2b3cc0b5bc3e73200aedb5e16abf69b71"}}}
 ```
 
 ## Usage
