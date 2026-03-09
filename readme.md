@@ -18,9 +18,10 @@ Add to your `bb.edn` or `deps.edn`:
 
 ## Usage
 
-`roterski.doorbell/cli->data` returns data coerced to `schema` that comes from combining `*command-line-args*` with user-input from interactive TUI.
+### `roterski.doorbell/cli->data`
+ returns data coerced to `schema` that comes from combining `*command-line-args*` with user-input from interactive TUI.
 
-### Simple form
+#### Simple form
 
 ```clojure
 (ns examples.simple-form
@@ -55,7 +56,7 @@ but, again, if you provide invalid data, it'll start the TUI:
 ![invalid](doc/invalid.png)
 
 
-### Form with nested fields
+#### Form with nested fields
 
 ```clojure
 (println (doorbell/cli->data [:map
@@ -84,8 +85,23 @@ bb examples/person_form.clj -first-name Bob --age 30 looks.eye-color blue "looks
 - keys can be prefixed with `-`,  `--`, `:` or nothing - the lib treats them the same way, ignoring the prefix
 - nested keys use dot notation on the command line (e.g. `looks.eye-color`)
 
-## Limitations
+### Limitations
 - args must be key/value pair (unless it's a single arg for a single arg schema)
 - attributes ending with `?` need to be wrapped in `" "` quotes
 - no support for vectors/sequences values in schemas
 
+### `roterski.doorbell/autocomplete`
+
+A separate component only supported in tty terminals.
+
+It allows selecting items from dynamic (including asynchronously fetched) sequences:
+
+````clojure
+(doorbell/autocomplete
+ (fn [query]
+   (->> animals
+        (filter #(str/starts-with?
+                  % (str/lower-case query))))))
+````
+
+![autocomplete](doc/autocomplete.gif)

@@ -1,5 +1,7 @@
 (ns roterski.doorbell.cli
   (:require [malli.core :as ma]
+            [malli.util :as mu]
+            [malli.transform :as mt]
             [clojure.string :as str]))
 
 (defn ->key-path
@@ -12,12 +14,26 @@
            (str/split #"\."))
        (mapv keyword)))
 
+(defn normalize-args
+  [schema args]
+  (let [schema-keys (mu/keys schema)
+        single-arg? (= 1
+                       (count args)
+                       (count schema-keys))]
+    (or
+     (when single-arg? [(name (first schema-keys)) (first args)])
+     args
+     [])))
+
 (defn cli-args->map
-  [args]
-  (->> (ma/parse [:* [:catn
-                      [:key :string]
-                      [:value :string]]]
-                 args)
-       (reduce (fn [acc {{:keys [key value]} :values}]
-                 (assoc-in acc (->key-path key) value))
-               {})))
+  [args schema]
+  (let [decode (ma/decoder schema mt/string-transformer)]
+    (->> args
+         (normalize-args schema)
+         (ma/parse [:* [:catn
+                        [:key :string]
+                        [:value :string]]])
+         (reduce (fn [acc {{:keys [key value]} :values}]
+                   (assoc-in acc (->key-path key) value))
+                 {})
+         decode)))

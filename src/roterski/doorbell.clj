@@ -1,21 +1,10 @@
 (ns roterski.doorbell
   (:require [roterski.doorbell.cli :as cli]
-            [roterski.doorbell.tui :as tui]
+            [roterski.doorbell.tui.autocomplete :as ac]
+            [roterski.doorbell.tui.schema-to-data :as schema-to-data]
             [malli.core :as ma]
-            [malli.util :as mu]
             [malli.transform :as mt]
             [babashka.terminal :refer [tty?]]))
-
-(defn ->args
-  [args schema]
-  (let [schema-keys (mu/keys schema)
-        single-arg? (= 1
-                       (count args)
-                       (count schema-keys))]
-    (or
-     (when single-arg? [(name (first schema-keys)) (first args)])
-     args
-     [])))
 
 (defn cli->data
   "Decodes *command-line-args* using schema.
@@ -24,14 +13,29 @@
   ([schema]
    (cli->data schema *command-line-args*))
   ([schema args]
-   (let [decode (ma/decoder schema mt/string-transformer)
-         encode (ma/encoder schema mt/string-transformer)
+   (let [encode (ma/encoder schema mt/string-transformer)
          decode-with-defaults (ma/decoder schema (mt/transformer mt/string-transformer
                                                                  mt/default-value-transformer))
          coerce (ma/coercer schema mt/string-transformer)
-         valid? (ma/validator schema)
-         data   (cli/cli-args->map (->args args schema))]
+         data   (cli/cli-args->map args schema)
+         valid? (ma/validate schema data)]
      (coerce (if (and (tty? :stdout)
-                      (not (valid? (decode data))))
-               (tui/tui->result schema (encode (decode-with-defaults data)))
+                      (not valid?))
+               (->> data
+                    decode-with-defaults
+                    encode
+                    (schema-to-data/tui->result schema))
                data)))))
+
+(defn autocomplete
+  "Run an interactive autocomplete TUI.
+
+   `search-fn` — (fn [query] items), called asynchronously on each keystroke.
+   `opts`      — optional map validated against `Options` schema.
+
+   Returns the selected item, or nil if the user cancelled."
+  ([search-fn] (autocomplete search-fn {}))
+  ([search-fn opts]
+   (if-not (tty? :stdout)
+     (println `autocomplete "needs tty support")
+     (ac/autocomplete search-fn opts))))
