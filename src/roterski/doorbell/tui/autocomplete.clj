@@ -57,7 +57,10 @@
    results arrive as a :search-results msg."
   [state]
   (let [query (charm/text-input-value (:input state))
-        [spinner spinner-cmd] (charm/spinner-init (:spinner state))
+        already-loading? (:loading? state)
+        [spinner spinner-cmd] (if already-loading?
+                                [(:spinner state) nil]
+                                (charm/spinner-init (:spinner state)))
         search-cmd (let [search-fn (:search-fn state)
                          q query]
                      (charm/cmd (fn []
@@ -65,7 +68,9 @@
                                    :query q
                                    :items (search-fn q)})))]
     [(assoc state :query query :loading? true :spinner spinner :cursor 0)
-     (charm/batch search-cmd spinner-cmd)]))
+     (if spinner-cmd
+       (charm/batch search-cmd spinner-cmd)
+       search-cmd)]))
 
 ;; ---------------------------------------------------------------------------
 ;; TEA: init
@@ -108,8 +113,13 @@
     ;; async search results arrived
     (= :search-results (:type msg))
     (if (= (:query msg) (:query state)) ;; ignore stale results
-      [(assoc state :items (vec (or (:items msg) [])) :message nil) nil]
+      [(assoc state :items (vec (or (:items msg) [])) :loading? false :message nil) nil]
       [state nil])
+
+    ;; spinner tick
+    (= :spinner-tick (:type msg))
+    (let [[new-spinner cmd] (charm/spinner-update (:spinner state) msg)]
+      [(assoc state :spinner new-spinner) cmd])
 
     ;; enter — submit selected item
     (charm/key-match? msg "enter")
@@ -171,7 +181,10 @@
         remaining (- total (+ offset (count visible-items)))
         has-query? (not (str/blank? query))]
     (str
-     (charm/text-input-view input) "\n"
+     (charm/text-input-view input)
+     (when (:loading? state)
+       (str " " (charm/spinner-view (:spinner state))))
+     "\n"
      (when message (str (charm/render normal-style message) "\n"))
      (cond
        (and has-query? (empty? items))

@@ -10,5 +10,6 @@
 
 (println "Your chosen animal is: "
          (doorbell/autocomplete (fn [query]
+                                  ;; (Thread/sleep 2000) you may add blocking functions here, it won't break
                                   (->> animals
                                        (filter #(str/starts-with? % (str/lower-case query)))))))
