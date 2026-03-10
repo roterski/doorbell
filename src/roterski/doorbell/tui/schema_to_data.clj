@@ -167,7 +167,7 @@
     (:submitted state)
     [state nil]
 
-    (charm/key-match? msg "esc")
+    (charm/key-match? msg :escape)
     [state charm/quit-cmd]
 
     ;; navigate fields

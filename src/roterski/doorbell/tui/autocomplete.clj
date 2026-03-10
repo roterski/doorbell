@@ -102,8 +102,7 @@
 (defn- update-fn [state msg]
   (cond
     ;; quit
-    (or (charm/key-match? msg "ctrl+c")
-        (charm/key-match? msg "esc"))
+    (charm/key-match? msg :escape)
     [(assoc state :result nil) charm/quit-cmd]
 
     ;; already submitted
@@ -208,8 +207,8 @@
        :else "")
      (charm/render hint-style
                    (if (= :selecting mode)
-                     "↑/↓ navigate  enter select  esc quit"
-                     "type to search  ↓/tab select  esc quit")))))
+                     "↑/↓ navigate  enter select  ctrl+c quit"
+                     "type to search  ↓/tab select  ctrl+c quit")))))
 
 ;; ---------------------------------------------------------------------------
 ;; Public API

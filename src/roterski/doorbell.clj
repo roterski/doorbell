@@ -18,14 +18,15 @@
                                                                  mt/default-value-transformer))
          coerce (ma/coercer schema mt/string-transformer)
          data   (cli/cli-args->map args schema)
-         valid? (ma/validate schema data)]
-     (coerce (if (and (tty? :stdout)
-                      (not valid?))
-               (->> data
-                    decode-with-defaults
-                    encode
-                    (schema-to-data/tui->result schema))
-               data)))))
+         result (if (and (tty? :stdout)
+                         (not (ma/validate schema data)))
+                  (->> data
+                       decode-with-defaults
+                       encode
+                       (schema-to-data/tui->result schema))
+                  data)]
+     (when (some? result)
+       (coerce result)))))
 
 (defn autocomplete
   "Run an interactive autocomplete TUI.
