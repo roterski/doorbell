@@ -1,5 +1,6 @@
 (ns roterski.doorbell.tui.schema-to-data
   (:require [roterski.doorbell.tui.utils :refer [clear]]
+            [roterski.doorbell.tui.styles :as styles]
             [charm.core :as charm]
             [malli.core :as ma]
             [malli.transform :as mt]
@@ -38,21 +39,6 @@
               (= :enum vs-type)
               (assoc :options (vec (ma/children (ma/schema vs)))))])))
      (ma/children (ma/schema schema))))))
-
-;; ---------------------------------------------------------------------------
-;; Styles
-;; ---------------------------------------------------------------------------
-
-(def title-style    (charm/style :fg charm/magenta :bold true))
-(def label-style    (charm/style :fg charm/cyan :bold true))
-(def error-style    (charm/style :fg charm/red))
-(def success-style  (charm/style :fg charm/green :bold true))
-(def hint-style     (charm/style :fg 240))
-(def bool-on-style  (charm/style :fg charm/green :bold true))
-(def bool-off-style (charm/style :fg charm/red))
-(def result-style   (charm/style :fg charm/white
-                                 :border charm/rounded-border
-                                 :padding [0 1]))
 
 ;; ---------------------------------------------------------------------------
 ;; Helpers
@@ -226,7 +212,7 @@
 (defn render-bool [input]
   (let [v     (:value input)
         label (if v "true" "false")
-        style (if v bool-on-style bool-off-style)]
+        style (if v styles/bool-on-style styles/bool-off-style)]
     (if (:focused input)
       (charm/render (charm/style :reverse true) label)
       (charm/render style label))))
@@ -235,7 +221,7 @@
   (let [{:keys [items input-fields inputs focused errors submitted result]} state
         max-w (+ 2 (apply max (map #(count (name (:key %))) input-fields)))]
     (str
-     (charm/render title-style "Doorbell") "\n\n"
+     (charm/render styles/title-style "Doorbell") "\n\n"
 
      ;; field rows — walk items, tracking input index for non-group entries
      (str/join
@@ -247,14 +233,14 @@
             ;; group header line
             (let [indent (apply str (repeat (* 2 depth) " "))]
               [(conj out (str indent "  "
-                              (charm/render label-style (str (name key) ":"))))
+                              (charm/render styles/label-style (str (name key) ":"))))
                input-idx])
             ;; input field line
             (let [input    (nth inputs input-idx)
                   focused? (= input-idx focused)
                   indent   (apply str (repeat (* 2 depth) " "))
                   arrow    (if focused? "▸ " "  ")
-                  label    (charm/render label-style
+                  label    (charm/render styles/label-style
                                          (format (str "%-" max-w "s") (name key)))
                   value    (case type
                              :boolean (render-bool input)
@@ -271,18 +257,18 @@
      ;; errors
      (when (seq errors)
        (str (str/join "\n"
-                      (map #(charm/render error-style (str "✗ " %)) errors))
+                      (map #(charm/render styles/error-style (str "✗ " %)) errors))
             "\n\n"))
 
      ;; success
      (when submitted
-       (str (charm/render success-style "✓ Valid!") "\n"
-            (charm/render result-style (pr-str result)) "\n\n"))
+       (str (charm/render styles/success-style "✓ Valid!") "\n"
+            (charm/render styles/result-style (pr-str result)) "\n\n"))
 
      ;; hints
      (if submitted
-       (charm/render hint-style "press any key to continue")
-       (charm/render hint-style
+       (charm/render styles/hint-style "press any key to continue")
+       (charm/render styles/hint-style
                      "↑/↓ navigate  enter submit  ctrl+c quit")))))
 
 (defn tui->result

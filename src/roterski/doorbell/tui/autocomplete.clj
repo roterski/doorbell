@@ -1,5 +1,6 @@
 (ns roterski.doorbell.tui.autocomplete
   (:require [roterski.doorbell.tui.utils :refer [clear]]
+            [roterski.doorbell.tui.styles :as styles]
             [charm.core :as charm]
             [malli.core :as ma]
             [malli.transform :as mt]
@@ -20,16 +21,6 @@
   (ma/coercer Options (mt/transformer mt/default-value-transformer)))
 
 ;; ---------------------------------------------------------------------------
-;; Styles
-;; ---------------------------------------------------------------------------
-
-(def prompt-style  (charm/style :fg charm/cyan :bold true))
-(def selected-style (charm/style :fg charm/cyan :bold true))
-(def normal-style  (charm/style :fg charm/white))
-(def hint-style    (charm/style :fg 240))
-(def no-results-style (charm/style :fg 240 :italic true))
-
-;; ---------------------------------------------------------------------------
 ;; Helpers
 ;; ---------------------------------------------------------------------------
 
@@ -42,8 +33,8 @@
 (defn- render-item [item selected?]
   (let [title (item-title item)]
     (if selected?
-      (charm/render selected-style (str "▸ " title))
-      (str "  " (charm/render normal-style title)))))
+      (charm/render styles/selected-style (str "▸ " title))
+      (str "  " (charm/render styles/normal-style title)))))
 
 ;; ---------------------------------------------------------------------------
 ;; TEA: helpers
@@ -80,7 +71,7 @@
   (let [{:keys [prompt placeholder]} opts]
     (fn []
       (let [state {:input      (charm/text-input-focus
-                                (charm/text-input :prompt (charm/render prompt-style prompt)
+                                (charm/text-input :prompt (charm/render styles/prompt-style prompt)
                                                   :placeholder placeholder
                                                   :focused true))
                    :search-fn  search-fn
@@ -184,14 +175,14 @@
      (when (:loading? state)
        (str " " (charm/spinner-view (:spinner state))))
      "\n"
-     (when message (str (charm/render normal-style message) "\n"))
+     (when message (str (charm/render styles/normal-style message) "\n"))
      (cond
        (and has-query? (empty? items))
-       (str (charm/render no-results-style no-results-text) "\n")
+       (str (charm/render styles/no-results-style no-results-text) "\n")
 
        (seq visible-items)
        (str (when (pos? offset)
-              (str (charm/render hint-style
+              (str (charm/render styles/hint-style
                                  (str "  +" offset " above")) "\n"))
             (str/join "\n"
                       (map-indexed
@@ -200,12 +191,12 @@
                                                 (= (+ offset idx) cursor))))
                        visible-items))
             (when (pos? remaining)
-              (str "\n" (charm/render hint-style
+              (str "\n" (charm/render styles/hint-style
                                       (str "  +" remaining " more"))))
             "\n")
 
        :else "")
-     (charm/render hint-style
+     (charm/render styles/hint-style
                    (if (= :selecting mode)
                      "↑/↓ navigate  enter select  ctrl+c quit"
                      "type to search  ↓/tab select  ctrl+c quit")))))
