@@ -1,6 +1,6 @@
 .lsp
 .cpcache
-.clj-kondo/.cache
+.clj-kondo
 *.calva-repl
 .DS_Store
 .portal

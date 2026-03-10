@@ -1,11 +1,10 @@
 # Doorbell
-An entry point for babashka scripts.
+An easy way to make your babashka scripts interactive, with two simple TUI components:
+- `roterski.doorbell/cli->data`
+- `roterski.doorbell/autocomplete`
 
-Doorbell parses CLI arguments and if any of them are missing it asks user to provide them through interactive TUI form.
+add & mix them together in front of your bb tasks/scripts.
 
-If you provide all the required args via CLI, TUI is not triggered so scripts can still work without tty user input.
-
-![Demo](doc/demo.gif)
 
 ## Installation
 
