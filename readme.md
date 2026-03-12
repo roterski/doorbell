@@ -1,4 +1,6 @@
 # Doorbell
+[![Clojars Project](https://img.shields.io/clojars/v/com.roterski/doorbell.svg)](https://clojars.org/com.roterski/doorbell)
+
 An easy way to make your babashka scripts interactive, with two simple TUI components:
 - `roterski.doorbell/cli->data`
 - `roterski.doorbell/autocomplete`
