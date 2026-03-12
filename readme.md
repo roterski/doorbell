@@ -74,6 +74,7 @@ Run interactively (launches TUI when args are missing):
 ```sh
 bb examples/person_form.clj
 ```
+![demo](doc/demo.gif)
 
 Run non-interactively by providing all required args:
 

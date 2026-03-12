@@ -4,3 +4,4 @@
 *.calva-repl
 .DS_Store
 .portal
+target
