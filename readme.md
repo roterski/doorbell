@@ -13,8 +13,7 @@ add & mix them together in front of your bb tasks/scripts.
 Add to your `bb.edn` or `deps.edn`:
 
 ```clojure
-{:deps {io.github.roterski/doorbell {:git/url "https://github.com/roterski/doorbell"
-                                     :git/sha "9ffe55a486408b56220e7ad6468da064f5e297a8"}}}
+{:deps {com.roterski/doorbell {:mvn/version "0.1.0"}}}
 ```
 
 ## Usage
